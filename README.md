@@ -7,9 +7,11 @@ This project allows users to upload `.pdf` or `.txt` files and generates clean, 
 ## 🚀 Features
 
 - 📄 Accepts `.pdf` and `.txt` file uploads
+- 📝 Submitting raw text directly through an input form
 - 🤖 Generates summaries using AI (Mistral model via OpenRouter)
 - 🔒 API key security using `.env`
 - 🗂️ Organized backend with routes, services, and utilities
+
 
 ---
 
@@ -69,6 +71,13 @@ pip install -r requirements.txt
 ```bash
 cp .env.example .env  # On Mac/Linux
 copy .env.example .env  # On Windows
+```
+
+### 5. Run the Backend
+```bash
+# From backend/ directory
+set PYTHONPATH=.
+uvicorn app.main:app --reload
 ```
 
 - Open `.env` and paste your OpenRouter API key:
