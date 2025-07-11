@@ -6,14 +6,28 @@ client = openai.OpenAI(
     base_url="https://openrouter.ai/api/v1"
 )
 
-def answer_question(content: str, question: str) -> str:
+def answer_question(file_content: str, question: str, user_text: str = "") -> str:
     try:
-        prompt = (
-            f"Use the following context to answer the question.\n\n"
-            f"Context:\n{content}\n\n"
-            f"Question: {question}\n"
-            f"Answer:"
-        )
+        prompt = f"""
+You are an AI assistant that answers questions based on the provided context.
+
+📄 Document:
+\"\"\"
+{file_content}
+\"\"\"
+
+✍️ Additional Notes from the User:
+\"\"\"
+{user_text}
+\"\"\"
+
+❓ Question:
+\"\"\"
+{question}
+\"\"\"
+
+Provide a concise and accurate answer based only on the above information.
+"""
 
         response = client.chat.completions.create(
             model="mistralai/mistral-small-3.2-24b-instruct-2506:free",

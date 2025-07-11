@@ -1,7 +1,7 @@
-from fastapi import APIRouter, Request, UploadFile, File, Form, HTTPException
+from fastapi import APIRouter, UploadFile, File, Form, HTTPException
 from typing import Optional
 from app.utils.file_parser import parse_pdf, parse_text
-from app.services.qa import answer_question
+from app.services.qa import answer_question  # expects (file_content, question, user_text)
 
 router = APIRouter()
 
@@ -12,29 +12,27 @@ async def get_answer(
     text: Optional[str] = Form(None)
 ):
     try:
-        content_parts = []
+        file_content = ""
 
         # Handle file input
         if file and file.filename != "":
             if file.filename.endswith(".pdf"):
-                content_parts.append(parse_pdf(file))
+                file_content = parse_pdf(file)
             elif file.filename.endswith(".txt"):
-                content_parts.append(parse_text(file))
+                file_content = parse_text(file)
             else:
                 raise HTTPException(status_code=400, detail="Unsupported file format")
 
-        # Handle raw text input
-        if text:
-            content_parts.append(text)
+        # Use text directly as user input
+        user_text = text if text else ""
 
-        # Final combined content
-        content = "\n".join(part.strip() for part in content_parts if part and part.strip())
-
-        if not content:
+        # Check if at least one content source is provided
+        if not file_content.strip() and not user_text.strip():
             raise HTTPException(status_code=400, detail="No valid content provided")
 
-        # Answer the question using combined context
-        answer = answer_question(content, question)
+        # Call updated answer_question function
+        answer = answer_question(file_content, question, user_text)
+
         return {"question": question, "answer": answer}
 
     except Exception as e:
