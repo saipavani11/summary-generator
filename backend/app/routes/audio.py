@@ -1,13 +1,15 @@
-from fastapi import APIRouter, UploadFile, File, HTTPException
+from fastapi import APIRouter, UploadFile, File, HTTPException, Depends
 import speech_recognition as sr
 from app.services.summarizer import summarize_text
 from pydub import AudioSegment
+from app.auth.dependencies import require_authenticated_user
 import io
 
 router = APIRouter()
 
 @router.post("/summarize-audio")
-async def summarize_audio(file: UploadFile = File(...)):
+async def summarize_audio(file: UploadFile = File(...),
+                          user: dict = Depends(require_authenticated_user)):
     recognizer = sr.Recognizer()
 
     try:
