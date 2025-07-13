@@ -38,15 +38,46 @@ This is a FastAPI backend that accepts PDFs, text, and audio to generate summari
 
 ```
 summary-generator/
+│
 ├── backend/
 │   ├── app/
-│   │   ├── main.py
-│   │   ├── routes/
-│   │   ├── services/
-│   │   ├── utils/
-│   ├── .env             <-- Not committed (contains your secret API key)
-│   ├── .env.example     <-- Sample of required environment variables
-│   ├── requirements.txt <-- All dependencies listed here
+│   │   ├── auth/                       # 🔐 Authentication logic
+│   │   │   ├── routes.py               # Signup/Login routes
+│   │   │   ├── dependencies.py         # Auth token logic (require_authenticated_user)
+│   │   │   └── utils.py                # Hashing, token creation, validation
+│   │   │
+│   │   ├── db/
+│   │   │   └── mongo.py                # MongoDB client & DB reference
+│   │   │
+│   │   ├── routes/                     # 📤 Core API endpoints
+│   │   │   ├── summarize.py            # Accepts PDF/text and returns summary
+│   │   │   ├── audio.py                # Accepts audio, transcribes & summarizes
+│   │   │   ├── question_answer.py      # Basic question answering
+│   │   │   ├── chat.py                 # Chat-style QA with history
+│   │   │   ├── debug.py                # Debug/test routes
+│   │   │   └── __init__.py
+│   │   │
+│   │   ├── utils/                      # 🧠 Helper modules
+│   │   │   ├── chunking.py             # Chunk large inputs
+│   │   │   ├── summarizer.py           # Summarization logic
+│   │   │   ├── transcriber.py          # Audio transcription
+│   │   │   ├── qa_engine.py            # QA logic (OpenAI / local models)
+│   │   │   └── history.py              # Save/retrieve summary/QA history
+│   │   │
+│   │   ├── config.py                   # 🔐 Secret keys, algorithm, config vars
+│   │   └── __init__.py
+│   │
+│   ├── main.py                         # 🚀 Entry point for FastAPI
+│   ├── .env                            # 🌱 Environment variables
+│   ├── .env.example                    # 🧪 Example env for collaborators
+│   ├── requirements.txt                # 📦 Python dependencies
+│   └── README.md                       # 📘 Backend-specific README
+│
+├── frontend/                           # (If present, frontend React/Next.js/etc.)
+│   └── ...                             # You can keep frontend separate or integrated
+│
+└── README.md                           # 📘 Main project README (overview)
+
 ```
 
 ---
