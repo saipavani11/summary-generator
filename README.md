@@ -1,17 +1,36 @@
-# 🧠 AI Summary Generator App
+# 🧠 AI-Powered Summarizer & Question Answering Backend
 
-This project allows users to upload `.pdf` or `.txt` files and generates clean, concise summaries using an AI model (via OpenRouter). The backend is built with **FastAPI**, and the app is capable of handling multiple input types (one at a time).
+This is a FastAPI backend that accepts PDFs, text, and audio to generate summaries and provide answers to questions. It includes user authentication, chat-like question answering, and MongoDB integration to store summary and QA history.
 
 ---
 
-## 🚀 Features
+## ✅ Features Implemented
 
-- 📄 Accepts `.pdf` and `.txt` file uploads
-- 📝 Submitting raw text directly through an input form
-- 🤖 Generates summaries using AI (Mistral model via OpenRouter)
-- 🔒 API key security using `.env`
-- 🗂️ Organized backend with routes, services, and utilities
+### 🔍 Summarization
+- Accepts **PDF** or **raw text**
+- Supports **large files** via chunking
+- Stores **summary results** in the database
 
+### 🔊 Audio Summarization
+- Upload **audio files (e.g., MP3/WAV)**
+- Transcribes and summarizes the content
+
+### ❓ Question Answering
+- Basic QA: Ask questions on uploaded content
+- Chat-like memory for conversational QA
+- Summary and QA **history stored per user**
+
+### 🔒 Authentication
+- User **sign-up** / **login** with JWT-based authentication
+- Protected endpoints (`/summary`, `/chat`, `/qa`) require auth
+- Optional guest support for limited access
+
+### 🧠 MongoDB Integration
+- Stores:
+  - User credentials
+  - Summary history
+  - Chat QA history
+- Secure environment variables used for credentials
 
 ---
 
@@ -80,10 +99,16 @@ set PYTHONPATH=.
 uvicorn app.main:app --reload
 ```
 
-- Open `.env` and paste your OpenRouter API key:
+- Open `.env` and paste your API key:
 
 ```env
 OPENROUTER_API_KEY=your-api-key-here
+SECRET_KEY=your_Secret_key
+ALGORITHM=algorithm
+ACCESS_TOKEN_EXPIRE_MINUTES=token_expire_time
+MONGODB_URI=your_mongodb_uri
+MONGO_DB_NAME=your_mongodb_name
+
 ```
 
 ---
@@ -120,6 +145,11 @@ Here’s what your `.env.example` should contain:
 
 ```env
 OPENROUTER_API_KEY=your-api-key-here
+SECRET_KEY=your_Secret_key
+ALGORITHM=algorithm
+ACCESS_TOKEN_EXPIRE_MINUTES=token_expire_time
+MONGODB_URI=your_mongodb_uri
+MONGO_DB_NAME=your_mongodb_name
 ```
 
 Each team member should copy this file as `.env` and paste their actual key.
