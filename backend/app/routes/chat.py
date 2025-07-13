@@ -1,35 +1,48 @@
-from fastapi import APIRouter, Depends, HTTPException, Form
+from fastapi import APIRouter, Depends, Form, UploadFile, File, HTTPException
 from app.auth.dependencies import require_authenticated_user
-from app.services.chat import get_chat_response
-from typing import Dict
+from app.models.chat import ChatMessage
+from app.services.chat_logic import save_chat, get_chat_history
+from app.utils.file_parser import parse_pdf, parse_text
+from app.services.qa import answer_question
 
 router = APIRouter()
 
-# In-memory history (for demo — in production, use DB)
-user_chat_history: Dict[str, list] = {}
-
-@router.post("/")
-async def chat_with_context(
-    message: str = Form(...),
+@router.post("/chat")
+async def chat(
+    question: str = Form(...),
+    file: UploadFile = File(None),
+    text: str = Form(None),
     user: dict = Depends(require_authenticated_user)
 ):
-    try:
-        username = user["username"]
+    content = ""
 
-        # Initialize history if not present
-        if username not in user_chat_history:
-            user_chat_history[username] = []
+    if file:
+        if file.filename.endswith(".pdf"):
+            content = parse_pdf(file)
+        elif file.filename.endswith(".txt"):
+            content = await parse_text(file)
+        else:
+            raise HTTPException(400, detail="Unsupported file type")
+    elif text:
+        content = text
+    else:
+        raise HTTPException(400, detail="No input provided")
 
-        # Add the user message
-        user_chat_history[username].append({"role": "user", "content": message})
+    if not content.strip():
+        raise HTTPException(400, detail="Empty content")
 
-        # Get the response using the conversation history
-        response = get_chat_response(user_chat_history[username])
+    answer = answer_question(content, question)
 
-        # Append assistant's reply to history
-        user_chat_history[username].append({"role": "assistant", "content": response})
+    chat_message = ChatMessage(
+        user_id=user["username"],  # assuming username is unique
+        question=question,
+        answer=answer,
+        file_name=file.filename if file else None
+    )
+    save_chat(chat_message)
 
-        return {"reply": response}
+    return {"question": question, "answer": answer}
 
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+@router.get("/chat/history")
+def history(user: dict = Depends(require_authenticated_user)):
+    return get_chat_history(user["username"])
