@@ -42,12 +42,17 @@ summary-generator/
 ├── backend/
 │   ├── app/
 │   │   ├── auth/                       # 🔐 Authentication logic
+|   |   |   ├── models.py
 │   │   │   ├── routes.py               # Signup/Login routes
 │   │   │   ├── dependencies.py         # Auth token logic (require_authenticated_user)
-│   │   │   └── utils.py                # Hashing, token creation, validation
+│   │   │   └── auth-utils.py                # Hashing, token creation, validation
 │   │   │
 │   │   ├── db/
 │   │   │   └── mongo.py                # MongoDB client & DB reference
+|   |   |
+|   |   ├── models/
+|   |   |   └──chat.py                  #schema/model for storing chat-based question-answer sessions
+|   |   |   └──user.py                  # schema/model for user accounts,
 │   │   │
 │   │   ├── routes/                     # 📤 Core API endpoints
 │   │   │   ├── summarize.py            # Accepts PDF/text and returns summary
@@ -57,12 +62,15 @@ summary-generator/
 │   │   │   ├── debug.py                # Debug/test routes
 │   │   │   └── __init__.py
 │   │   │
+│   │   ├── services/
+│   │   │   ├── __init__.py             #📁 Holds core business logic used by routes
+│   │   │   ├── chat_logic.py           #Implements the logic for chat-based question answering sessions
+│   │   │   ├── qa.py                   #Handles basic question answering over summarized content (non-chat)
+│   │   │   ├── summarizer.py           #Implements summarization logic
+│   │   │
 │   │   ├── utils/                      # 🧠 Helper modules
 │   │   │   ├── chunking.py             # Chunk large inputs
-│   │   │   ├── summarizer.py           # Summarization logic
-│   │   │   ├── transcriber.py          # Audio transcription
-│   │   │   ├── qa_engine.py            # QA logic (OpenAI / local models)
-│   │   │   └── history.py              # Save/retrieve summary/QA history
+│   │   │   ├── file_parser.py          # To parse the file and extract its contents
 │   │   │
 │   │   ├── config.py                   # 🔐 Secret keys, algorithm, config vars
 │   │   └── __init__.py
