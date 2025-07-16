@@ -9,6 +9,8 @@ from app.routes import chat
 
 from app.routes import debug
 
+from app.routes import summarize_url
+
 app = FastAPI(
     title="AI Summarizer & QA API",
     description="Summarize text/audio/pdf and ask questions with optional authentication",
@@ -40,6 +42,8 @@ app.include_router(question_answer.router)
 app.include_router(chat.router, prefix="/chat", tags=["Chat"])
 
 app.include_router(debug.router, prefix="/debug", tags=["Debug"])
+
+app.include_router(summarize_url.router)
 
 # ✅ Test route to verify auth token
 @app.get("/protected", tags=["Test"])
