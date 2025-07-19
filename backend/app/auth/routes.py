@@ -1,10 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from datetime import timedelta
+from typing import Annotated
 
 from app.auth.auth_utils import verify_password, create_access_token, get_password_hash
-from app.db.mongo import db  # Make sure this connects to your MongoDB
+from app.auth.dependencies import require_authenticated_user as get_current_user
+from app.db.mongo import db  # MongoDB connection
 from bson.objectid import ObjectId
 
 router = APIRouter()
@@ -43,3 +46,8 @@ def login(form_data: OAuth2PasswordRequestForm = Depends()):
         expires_delta=timedelta(minutes=30)
     )
     return {"access_token": access_token, "token_type": "bearer"}
+
+@router.post("/logout")
+def logout(current_user: Annotated[dict, Depends(get_current_user)]):
+    # Optionally add session cleanup or logging here
+    return JSONResponse(content={"message": "Successfully logged out."})

@@ -1,6 +1,6 @@
 from fastapi import APIRouter, UploadFile, File, HTTPException, Form, Depends
 from typing import Optional
-from app.utils.file_parser import parse_pdf, parse_text
+from app.utils.file_parser import parse_pdf, parse_text, parse_docx
 from app.services.summarizer import summarize_text
 from app.auth.dependencies import get_optional_user
 
@@ -30,16 +30,19 @@ async def summarize(
 
         content = ""
 
-        # Handle file input
         if file:
-            if file.filename.endswith(".pdf"):
+            filename = file.filename.lower()
+
+            if filename.endswith(".pdf"):
                 content = parse_pdf(file)
-            elif file.filename.endswith(".txt"):
+            elif filename.endswith(".txt"):
                 content = await parse_text(file)
+            elif filename.endswith(".docx"):
+                content = await parse_docx(file)
             else:
                 raise HTTPException(
                     status_code=400,
-                    detail="Unsupported file format. Only .pdf and .txt files are accepted."
+                    detail="Unsupported file format. Only .pdf, .txt, and .docx files are accepted."
                 )
 
         # Handle raw text input
@@ -52,18 +55,14 @@ async def summarize(
 
         if not content.strip():
             raise HTTPException(status_code=400, detail="Input content is empty.")
-        
-        # print("File:", file)
-        # print("Raw text:", raw_text)
-        # print("Parsed content:", content)
-
-        # print(f"Parsed content: {repr(content)}")
 
         # Generate summary
         summary = summarize_text(content)
 
-        return {"summary": summary,
-                "user": user["username"] if user else "guest"}
+        return {
+            "summary": summary,
+            "user": user["username"] if user else "guest"
+        }
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
