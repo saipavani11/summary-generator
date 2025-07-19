@@ -1,197 +1,190 @@
-# 🧠 AI-Powered Summarizer & Question Answering Backend
+# 🧠 Clarity AI – AI-Powered Summarization & QA Platform
 
-This is a FastAPI backend that accepts PDFs, text, and audio to generate summaries and provide answers to questions. It includes user authentication, chat-like question answering, and MongoDB integration to store summary and QA history.
+This project is a full-stack application for uploading **PDFs, text, and audio** to receive AI-generated **summaries** and ask **questions**. It supports both **guest users** and **authenticated users**, with chat-based Q&A and history tracking.
 
 ---
 
-## ✅ Features Implemented
+## ✅ Features
 
 ### 🔍 Summarization
-- Accepts **PDF** or **raw text**
-- Supports **large files** via chunking
-- Stores **summary results** in the database
+- Upload **PDF** or **text**
+- Smart chunking for **large files**
+- View and store **summary results**
 
 ### 🔊 Audio Summarization
-- Upload **audio files (e.g., MP3/WAV)**
-- Transcribes and summarizes the content
+- Accepts **MP3/WAV** files
+- **Transcribes** and summarizes content
 
 ### ❓ Question Answering
-- Basic QA: Ask questions on uploaded content
-- Chat-like memory for conversational QA
-- Summary and QA **history stored per user**
+- Ask 1 question per file (free users)
+- Unlimited conversational QA for signed-in users
+- Chat history stored per user
 
-### 🔒 Authentication
-- User **sign-up** / **login** with JWT-based authentication
-- Protected endpoints (`/summary`, `/chat`, `/qa`) require auth
-- Optional guest support for limited access
+### 🔒 Authentication & Authorization
+- **JWT-based login/signup**
+- Authenticated users get access to:
+  - Chat-style QA
+  - Summary and chat **history**
+  - **Faster** processing
 
 ### 🧠 MongoDB Integration
 - Stores:
   - User credentials
-  - Summary history
+  - File summaries
   - Chat QA history
-- Secure environment variables used for credentials
+
+### 🧩 Dual Access Levels
+- 🌐 **Free Users** (no login required)
+- 🔐 **Authenticated Users** (with dashboard and history)
 
 ---
 
 ## 📁 Folder Structure
-
-```
 summary-generator/
 │
 ├── backend/
-│   ├── app/
-│   │   ├── auth/                       # 🔐 Authentication logic
-|   |   |   ├── models.py
-│   │   │   ├── routes.py               # Signup/Login routes
-│   │   │   ├── dependencies.py         # Auth token logic (require_authenticated_user)
-│   │   │   └── auth-utils.py                # Hashing, token creation, validation
-│   │   │
-│   │   ├── db/
-│   │   │   └── mongo.py                # MongoDB client & DB reference
-|   |   |
-|   |   ├── models/
-|   |   |   └──chat.py                  #schema/model for storing chat-based question-answer sessions
-|   |   |   └──user.py                  # schema/model for user accounts,
-│   │   │
-│   │   ├── routes/                     # 📤 Core API endpoints
-│   │   │   ├── summarize.py            # Accepts PDF/text and returns summary
-│   │   │   ├── audio.py                # Accepts audio, transcribes & summarizes
-│   │   │   ├── question_answer.py      # Basic question answering
-│   │   │   ├── chat.py                 # Chat-style QA with history
-│   │   │   ├── debug.py                # Debug/test routes
-│   │   │   └── __init__.py
-│   │   │
-│   │   ├── services/
-│   │   │   ├── __init__.py             #📁 Holds core business logic used by routes
-│   │   │   ├── chat_logic.py           #Implements the logic for chat-based question answering sessions
-│   │   │   ├── qa.py                   #Handles basic question answering over summarized content (non-chat)
-│   │   │   ├── summarizer.py           #Implements summarization logic
-│   │   │
-│   │   ├── utils/                      # 🧠 Helper modules
-│   │   │   ├── chunking.py             # Chunk large inputs
-│   │   │   ├── file_parser.py          # To parse the file and extract its contents
-│   │   │
-│   │   ├── config.py                   # 🔐 Secret keys, algorithm, config vars
-│   │   └── __init__.py
-│   │
-│   ├── main.py                         # 🚀 Entry point for FastAPI
-│   ├── .env                            # 🌱 Environment variables
-│   ├── .env.example                    # 🧪 Example env for collaborators
-│   ├── requirements.txt                # 📦 Python dependencies
-│   └── README.md                       # 📘 Backend-specific README
+│ ├── app/
+│ │ ├── auth/ # User authentication (JWT)
+│ │ ├── db/ # MongoDB connection
+│ │ ├── models/ # Data models (users, chats)
+│ │ ├── routes/ # All API routes (summary, QA, chat, audio)
+│ │ ├── services/ # Business logic for summarization/QA
+│ │ ├── utils/ # Chunking, parsing files
+│ │ └── config.py # Environment & security settings
+│ ├── main.py # FastAPI app entry point
+│ ├── requirements.txt # Python dependencies
+│ ├── .env.example # Env variable template
+│ └── README.md # Backend-specific documentation
 │
-├── frontend/                           # (If present, frontend React/Next.js/etc.)
-│   └── ...                             # You can keep frontend separate or integrated
+├── frontend/
+│ ├── public/
+│ ├── src/
+│ │ ├── components/ # Navbar, PlanCard, SummaryDisplay, etc.
+│ │ ├── pages/ # LandingPage, AuthDashboard, etc.
+│ │ ├── App.jsx
+│ │ └── main.jsx
+│ └── package.json # Frontend dependencies
 │
-└── README.md                           # 📘 Main project README (overview)
+└── README.md # Full-stack README (this file)
 
-```
+yaml
+Copy
+Edit
 
 ---
 
 ## 🔧 Prerequisites
 
-- Python 3.10+ installed
-- Git installed
-- An API key from [OpenRouter](https://openrouter.ai/)
-- (Optional) Use a virtual environment (recommended)
+- Python 3.10+
+- Node.js + npm (for frontend)
+- MongoDB instance or Atlas URI
+- API key from [OpenRouter](https://openrouter.ai/)
 
 ---
 
-## 📦 Installation & Setup
+## ⚙️ Backend Setup
 
-### 1. Clone the repository
+### 1. Clone and navigate
 
 ```bash
 git clone https://github.com/your-username/summary-generator.git
 cd summary-generator/backend
 ```
 
-### 2. Create a virtual environment
+### 2. Create virtual environment
 
 ```bash
 python -m venv venv
-source venv/bin/activate    # On Mac/Linux
-venv\Scripts\activate       # On Windows
+source venv/bin/activate    # macOS/Linux
+venv\Scripts\activate       # Windows
 ```
 
-### 3. Install required packages
-
+### 3. Install dependencies
 ```bash
 pip install -r requirements.txt
 ```
 
-### 4. Set up environment variables
-
-- Copy the `.env.example` file and rename it to `.env`
-
+### 4. Configure environment variables
 ```bash
-cp .env.example .env  # On Mac/Linux
-copy .env.example .env  # On Windows
+cp .env.example .env  # macOS/Linux
+copy .env.example .env  # Windows
 ```
+## Then update .env with your credentials:
 
-### 5. Run the Backend
-```bash
-# From backend/ directory
-set PYTHONPATH=.
-uvicorn app.main:app --reload
-```
+OPENROUTER_API_KEY=your-api-key
+SECRET_KEY=your-secret
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=30
+MONGODB_URI=your-mongodb-uri
+MONGO_DB_NAME=clarity
 
-- Open `.env` and paste your API key:
 
-```env
-OPENROUTER_API_KEY=your-api-key-here
-SECRET_KEY=your_Secret_key
-ALGORITHM=algorithm
-ACCESS_TOKEN_EXPIRE_MINUTES=token_expire_time
-MONGODB_URI=your_mongodb_uri
-MONGO_DB_NAME=your_mongodb_name
-
-```
-
----
-
-## 🏃 Running the App
-
-Make sure you're in the `backend/` directory and your virtual environment is activated.
-
+### 5. Run backend
 ```bash
 uvicorn app.main:app --reload
+Swagger UI: http://localhost:8000/docs
 ```
 
-Then open [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs) to test the `/summarize` endpoint using the Swagger UI.
+### 🌐 Frontend Setup
+```bash
 
----
-
-## 🧪 Testing Summary Generation
-
-1. Upload a `.pdf` or `.txt` file
-2. Receive a summarized response from the AI model
-
----
-
-## 🔐 Security
-
-- `.env` is **excluded from GitHub** using `.gitignore`
-- Never share your API keys or commit the `.env` file
-
----
-
-## 📄 Environment Template
-
-Here’s what your `.env.example` should contain:
-
-```env
-OPENROUTER_API_KEY=your-api-key-here
-SECRET_KEY=your_Secret_key
-ALGORITHM=algorithm
-ACCESS_TOKEN_EXPIRE_MINUTES=token_expire_time
-MONGODB_URI=your_mongodb_uri
-MONGO_DB_NAME=your_mongodb_name
+cd ../frontend
+npm install
+npm run dev
+Visit: http://localhost:5173
 ```
 
-Each team member should copy this file as `.env` and paste their actual key.
+## 🛡️ Access Levels
+
+| Feature                | Guest User | Authenticated |
+|------------------------|------------|----------------|
+| Upload PDF/Text        | ✅         | ✅             |
+| Audio Upload           | ❌         | ✅             |
+| Summarization          | ✅         | ✅             |
+| Ask 1 Question         | ✅         | ✅             |
+| Unlimited Chat         | ❌         | ✅             |
+| Summary/Chat History   | ❌         | ✅             |
+| Dashboard              | ❌         | ✅             |
 
 ---
+
+## 🧪 Testing API
+
+1. Launch backend
+2. Open [http://localhost:8000/docs](http://localhost:8000/docs)
+3. Test the following endpoints:
+
+- `/auth/signup`
+- `/summary/upload`
+- `/qa`
+- `/chat`
+
+---
+
+## 🔐 Security Notes
+
+- `.env` is ignored via `.gitignore`
+- **Never commit** credentials or API tokens
+
+---
+
+## 🤝 Contributing
+
+Pull requests are welcome! Please follow these guidelines:
+
+- Use clear and meaningful commit messages
+- Keep PRs scoped and focused
+- Include screenshots for any UI changes
+
+---
+
+## 📜 License
+
+**MIT** – free to use, modify, and share.
+
+---
+
+## 📫 Contact
+
+For support or suggestions, feel free to open a GitHub **issue** or start a **discussion**.
 
