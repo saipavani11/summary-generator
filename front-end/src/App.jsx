@@ -15,7 +15,7 @@ import NotFound from './pages/NotFound';
 import Summarizer from './pages/Summarizer';
 import ChatLanding from './pages/ChatLanding';
 import ChatSession from './pages/ChatSession';
-import Navbar from './components/navbar';
+import Navbar from './components/Navbar';
 import SessionExpired from './pages/SessionExpired';
 
 import 'react-toastify/dist/ReactToastify.css';
