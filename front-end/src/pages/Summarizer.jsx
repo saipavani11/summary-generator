@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { summarizeContent, summarizeURL, summarizeAudio } from '../api';
-
 import SummaryDisplay from '../components/SummaryDisply';
+import { toast } from "react-hot-toast";
 
 export default function Summarizer() {
   const navigate = useNavigate();
@@ -30,58 +30,66 @@ export default function Summarizer() {
   };
 
   const handleSubmit = async () => {
-    try {
-      setSummary('');
-      setStatus('loading');
+  try {
+    setSummary('');
+    setStatus('loading');
 
-      if (url.trim()) {
-        const response = await summarizeURL(url);
-        setSummary(response.data.summary);
-        setStatus('success');
-        resetAllInputs();
-        return;
-      }
-
-      if (file) {
-        const extension = file.name.split('.').pop().toLowerCase();
-
-        if (['mp3', 'wav', 'm4a', 'ogg'].includes(extension)) {
-          const response = await summarizeAudio(file);
-          setSummary(response.data.summary);
-          setStatus('success');
-          resetAllInputs();
-          return;
-        }
-
-        if (['pdf', 'txt', 'docx'].includes(extension)) {
-          const response = await summarizeContent({ file, raw_text: '' });
-          setSummary(response.data.summary);
-          setStatus('success');
-          resetAllInputs();
-          return;
-        }
-
-        alert('Unsupported file format. Please upload PDF, TXT, DOCX, MP3, or WAV.');
-        setStatus('idle');
-        return;
-      }
-
-      if (text.trim()) {
-        const response = await summarizeContent({ file: null, raw_text: text });
-        setSummary(response.data.summary);
-        setStatus('success');
-        resetAllInputs();
-        return;
-      }
-
-      alert('Please provide a file, text, or URL.');
-      setStatus('idle');
-    } catch (err) {
-      console.error(err);
-      alert(err.response?.data?.detail || 'Something went wrong.');
-      setStatus('idle');
+    if (url.trim()) {
+      const response = await summarizeURL(url);
+      setSummary(response.data.summary);
+      setStatus('success');
+      toast.success("Summary generated from URL!");
+      setTimeout(() => setStatus('idle'), 2000);
+      resetAllInputs();
+      return;
     }
-  };
+
+    if (file) {
+      const extension = file.name.split('.').pop().toLowerCase();
+
+      if (['mp3', 'wav', 'm4a', 'ogg'].includes(extension)) {
+        const response = await summarizeAudio(file);
+        setSummary(response.data.summary);
+        setStatus('success');
+        toast.success("Audio summarized successfully!");
+        setTimeout(() => setStatus('idle'), 2000);
+        resetAllInputs();
+        return;
+      }
+
+      if (['pdf', 'txt', 'docx'].includes(extension)) {
+        const response = await summarizeContent({ file, raw_text: '' });
+        setSummary(response.data.summary);
+        setStatus('success');
+        toast.success("File summarized successfully!");
+        setTimeout(() => setStatus('idle'), 2000);
+        resetAllInputs();
+        return;
+      }
+
+      toast.error('❌ Unsupported file format. Please upload PDF, TXT, DOCX, MP3, or WAV.');
+      setStatus('idle');
+      return;
+    }
+
+    if (text.trim()) {
+      const response = await summarizeContent({ file: null, raw_text: text });
+      setSummary(response.data.summary);
+      setStatus('success');
+      toast.success("Text summarized successfully!");
+      setTimeout(() => setStatus('idle'), 2000);
+      resetAllInputs();
+      return;
+    }
+
+    toast.error('⚠️ Please provide a file, text, or URL.');
+    setStatus('idle');
+  } catch (err) {
+    console.error(err);
+    toast.error(err.response?.data?.detail || '❌ Something went wrong.');
+    setStatus('idle');
+  }
+};
 
   return (
     <div className="min-h-screen bg-gray-950 text-white px-6 py-10 md:px-16 font-inter">
@@ -177,12 +185,12 @@ export default function Summarizer() {
         <div className="text-center mt-8">
           <button
             onClick={handleSubmit}
-            disabled={status === 'loading'}
+            disabled={status === 'loading' || status === 'success'}
             className={`px-10 py-3 rounded-xl text-lg font-semibold shadow-lg transition ${
               status === 'loading'
                 ? 'bg-indigo-400 cursor-wait'
                 : status === 'success'
-                ? 'bg-green-600 hover:bg-green-700'
+                ? 'bg-green-600'
                 : 'bg-indigo-600 hover:bg-indigo-700'
             } text-white`}
           >

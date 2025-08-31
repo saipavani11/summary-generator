@@ -14,7 +14,7 @@ def summarize_text(content: str) -> str:
 
         summaries = []
         for chunk in chunks:
-            prompt = f"Summarize the following content in bullet points:\n\n{chunk}"
+            prompt = f"Summarize the following content in brief paragraphs:\n\n{chunk}"
 
             response = client.chat.completions.create(
                 model="mistralai/mistral-small-3.2-24b-instruct-2506:free",
