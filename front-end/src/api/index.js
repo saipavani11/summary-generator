@@ -2,9 +2,28 @@
 import axios from 'axios';
 
 const API = axios.create({
-  baseURL: 'http://127.0.0.1:8000',
+  baseURL: 'http://localhost:8000',
   withCredentials: true,
 });
+
+API.interceptors.response.use(
+  response => response,
+  error => {
+    const status = error.response?.status;
+    
+    if (status === 401 || status === 403) {
+      // 🔐 Clear any stored token
+      localStorage.removeItem("token");
+
+      // 🔁 Redirect user to login or session-expired page
+      window.location.href = "/session-expired"; // or "/" for landing
+    }
+
+    return Promise.reject(error);
+  }
+);
+
+export default API;
 
 // ---------- AUTH ----------
 export const loginUser = ({ username, password }) => {

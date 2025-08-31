@@ -16,6 +16,7 @@ import Summarizer from './pages/Summarizer';
 import ChatLanding from './pages/ChatLanding';
 import ChatSession from './pages/ChatSession';
 import Navbar from './components/navbar';
+import SessionExpired from './pages/SessionExpired';
 
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -24,6 +25,7 @@ function App() {
     <>
      <Navbar /> {/* Add this here */}
       <Routes>
+        <Route path="/session-expired" element={<SessionExpired />} />
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />

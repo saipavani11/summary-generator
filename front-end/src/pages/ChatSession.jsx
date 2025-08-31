@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getSessionChats, sendChatMessage, getUserSessions } from "../api";
 import { toast } from "react-hot-toast";
+import { useSpellChecker } from "../hooks/useSpellChecker";
 import { DateTime } from "luxon";
 
 export default function ChatSession() {
@@ -16,6 +17,8 @@ export default function ChatSession() {
   const [createdAt, setCreatedAt] = useState("");
 
   const fileInputRef = useRef(null);
+
+  const { checkWord, loaded } = useSpellChecker();
 
   useEffect(() => {
     const fetchMessages = async () => {
@@ -133,20 +136,47 @@ export default function ChatSession() {
 
       {/* Ask Input */}
       <div className="mt-6 flex flex-col md:flex-row gap-4">
-        <input
-          type="text"
-          value={question}
-          onChange={(e) => setQuestion(e.target.value)}
-          placeholder="Ask your question..."
-          className="flex-1 px-4 py-3 rounded-lg bg-gray-800 text-white border border-gray-700"
-        />
-        <input
-          type="file"
-          accept=".pdf,.txt,.docx,.mp3,.wav,.m4a"
-          ref={fileInputRef}
-          onChange={(e) => setFile(e.target.files[0])}
-          className="text-sm"
-        />
+        <div className="flex-1">
+          <input
+            type="text"
+            value={question}
+            onChange={(e) => setQuestion(e.target.value)}
+            placeholder="Ask your question..."
+            className="w-full px-4 py-3 rounded-lg bg-gray-800 text-white border border-gray-700"
+          />
+
+          {/* Spellcheck suggestion */}
+          {loaded && question.trim() && (() => {
+            const words = question.trim().split(/\s+/);
+            const lastWord = words[words.length - 1];
+            const spellResult = checkWord(lastWord);
+
+            return !spellResult.correct ? (
+              <div className="mt-1 text-sm text-red-400">
+                ⚠️ Did you mean: <span className="font-semibold">{spellResult.suggestions.join(", ") || "No suggestions"}</span>?
+              </div>
+            ) : null;
+          })()}
+        </div>
+
+        <div className="relative">
+          <input
+            type="file"
+            accept=".pdf,.txt,.docx,.mp3,.wav,.m4a"
+            ref={fileInputRef}
+            onChange={(e) => setFile(e.target.files[0])}
+            className="absolute inset-0 opacity-0 cursor-pointer"
+          />
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className="px-4 py-3 bg-gray-700 hover:bg-gray-600 rounded-lg font-medium text-white text-sm cursor-pointer"
+          >
+            {file ? `📎 ${file.name}` : "Upload File"}
+          </button>
+        </div>
+
+
         <button
           onClick={handleSend}
           disabled={loading}
