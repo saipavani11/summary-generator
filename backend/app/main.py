@@ -17,14 +17,18 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# ✅ Middleware
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Replace with frontend domain if needed
+    allow_origins=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 @app.get("/")
 async def root():
@@ -55,3 +59,5 @@ def protected_route(user: dict = Depends(require_authenticated_user)):
 def test_db():
     from app.db.mongo import db
     return {"collections": db.list_collection_names()}
+
+app.include_router(auth_router, prefix="/auth")
